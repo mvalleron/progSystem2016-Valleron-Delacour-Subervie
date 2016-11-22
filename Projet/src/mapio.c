@@ -44,8 +44,51 @@ void map_save (char *filename)
 
 void map_load (char *filename)
 {
-  // TODO
-  exit_with_error ("Map load is not yet implemented\n");
+  int err,fd;
+  char n;
+  fd = open(filename, O_RDONLY ,0666);
+  if(fd == -1){
+    fprintf (stderr,"Désolé: %s n'existe pas\n",filename);
+    exit(1);
+  }
+  err = lseek(fd,1,SEEK_SET);
+  if(err == -1){
+    fprintf (stderr,"Problème de format: %s\n",filename);
+    exit(1);
+  }
+  err = read(fd,&n, sizeof(int));
+  if(err == -1){
+    fprintf (stderr,"Problème de format: %s\n",filename);
+    exit(1);
+  }
+  unsigned width = n;
+  err = lseek(fd,2,SEEK_SET);
+  if(err == -1){
+    fprintf (stderr,"Problème de format: %s\n",filename);
+    exit(1);
+  }
+  err = read(fd,&n, sizeof(int));
+  if(err == -1){
+    fprintf (stderr,"Problème de format: %s\n",filename);
+    exit(1);
+  }
+  unsigned height= n;
+  map_new (width,height);
+  for (int y = 0; y < height-1 ; y++){
+    for (int x = 1; x < width-1 ; x++){
+      err = lseek(fd,3+y*width+x,SEEK_SET);
+      if(err == -1){
+	fprintf (stderr,"Problème de format: %s\n",filename);
+	exit(1);
+      }
+      err = read(fd,&n, sizeof(int));
+      if(err == -1){
+	fprintf (stderr,"Problème de format: %s\n",filename);
+	exit(1);
+      }
+      map_set (x, y, n);
+    }
+  }
 }
 
 #endif
