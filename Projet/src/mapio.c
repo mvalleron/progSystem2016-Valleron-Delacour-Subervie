@@ -42,8 +42,35 @@ void map_new (unsigned width, unsigned height)
 
 void map_save (char *filename)
 {
-  // TODO
-  fprintf (stderr, "Sorry: Map save is not yet implemented\n");
+  int valeur, err;
+  int height = map_height(); 
+  int width = map_width(); 
+  int output = open("maps/saved.map", O_TRUNC | O_WRONLY | O_CREAT);
+  if(output == -1){
+    fprintf (stderr,"Problème dans maps/saved.map: %s\n",filename);
+    exit(1);
+  }
+  lseek(output, 1, SEEK_SET);
+  write(output,&width,sizeof(int));
+  lseek(output, 3, SEEK_SET);
+  write(output,&height,sizeof(int));
+  for(int y = 0; y < height; y++){
+    for(int x = 0; x < width; x++){
+      valeur = map_get(x,y);
+      printf("%d\n",valeur);
+      err = lseek(output, (x+(width*y))*2+5, SEEK_SET);
+      if(err == -1){
+	fprintf (stderr,"Problème de sauvegarde: %s\n",filename);
+        exit(1);
+      }
+      err = write(output,&valeur,sizeof(int));
+      if(err == -1){
+	fprintf (stderr,"Problème de sauvegarde: %s\n",filename);
+	exit(1);
+      }
+    }
+  }
+  close(output);
 }
 
 void map_load (char *filename)
@@ -93,6 +120,7 @@ void map_load (char *filename)
       map_set (x, y, n);
     }
   }
+  close(fd);
 }
 
 #endif
