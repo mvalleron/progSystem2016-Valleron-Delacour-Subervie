@@ -8,7 +8,7 @@
 #include "error.h"
 
 #ifdef PADAWAN
-
+https://github.com/mvalleron/progSystem2016-Valleron-Delacour-Subervie.git
 void map_new (unsigned width, unsigned height)
 {
   map_allocate (width, height);
@@ -45,7 +45,7 @@ void map_save (char *filename)
   int valeur, err;
   int height = map_height(); 
   int width = map_width(); 
-  int output = open("maps/saved.map", O_TRUNC | O_WRONLY | O_CREAT);
+  int output = open("maps/saved.map", O_TRUNC | O_WRONLY | O_CREAT,0666);
   if(output == -1){
     fprintf (stderr,"Problème dans maps/saved.map: %s\n",filename);
     exit(1);
@@ -57,7 +57,6 @@ void map_save (char *filename)
   for(int y = 0; y < height; y++){
     for(int x = 0; x < width; x++){
       valeur = map_get(x,y);
-      printf("%d\n",valeur);
       err = lseek(output, (x+(width*y))*2+5, SEEK_SET);
       if(err == -1){
 	fprintf (stderr,"Problème de sauvegarde: %s\n",filename);
@@ -93,7 +92,7 @@ void map_load (char *filename)
     exit(1);
   }
   unsigned width = n;
-  err = lseek(fd,2,SEEK_SET);
+  err = lseek(fd,3,SEEK_SET);
   if(err == -1){
     fprintf (stderr,"Problème de format: %s\n",filename);
     exit(1);
@@ -107,7 +106,7 @@ void map_load (char *filename)
   map_new (width,height);
   for (int y = 0; y < height-1 ; y++){
     for (int x = 1; x < width-1 ; x++){
-      err = lseek(fd,3+y*width+x,SEEK_SET);
+      err = lseek(fd,(y*width+x)*2+5,SEEK_SET);
       if(err == -1){
 	fprintf (stderr,"Problème de format: %s\n",filename);
 	exit(1);
@@ -122,5 +121,3 @@ void map_load (char *filename)
   }
   close(fd);
 }
-
-#endif
