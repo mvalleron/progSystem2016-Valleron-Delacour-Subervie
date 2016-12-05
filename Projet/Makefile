@@ -93,3 +93,4 @@ endif
 clean: 
 	rm -f game obj/*.o deps/*.d maps/*.map
 	rm -f maputil
+	rm -f src/*~ util/*~
