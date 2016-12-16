@@ -44,7 +44,7 @@ maputil: $(UTIL)
 
 SOURCES_M := $(wildcard util/*.c)
 OBJECTS_M := $(SOURCES_M:util/%.c=obj/%.o)
-DEPENDS := $(SOURCES_M:util/%.c=deps/%.d)
+DEPENDS_M := $(SOURCES_M:util/%.c=deps/%.d)
 
 MAKEFILES := Makefile
 
@@ -60,13 +60,13 @@ LDLIBS := $(shell pkg-config SDL2_image SDL2_mixer --libs)
 
 $(OBJECTS): $(MAKEFILES)
 
-ifndef LIB_MODE
+ifndef LIB_MODE_M
 $(LIB): $(filter-out $(CUSTOM_OBJ_M),$(OBJECTS_M))
 	ar -crs $(LIB_M) $^
 endif
 
 $(UTIL): $(CUSTOM_OBJ_M) $(LIB_M)
-	$(CC) -o $@ $^ $(LDFLAGS) $(LDLIBS_M)
+	$(CC) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 $(OBJECTS_M): obj/%.o: util/%.c
 	$(CC) -o $@ $(CFLAGS) -c $<
@@ -85,6 +85,20 @@ $(DEPENDS): deps/%.d: src/%.c
 
 ifneq ($(MAKECMDGOALS),clean)
 -include $(DEPENDS)
+endif
+
+.PHONY: depend_m
+depend_m: $(DEPENDS_M)
+
+$(DEPENDS_M): $(MAKEFILES)
+
+$(DEPENDS_M): deps/%.d: util/%.c
+	$(CC) $(CFLAGS) -MM $< | \
+		sed -e 's|\(.*\)\.o:|deps/\1.d obj/\1.o:|g' > $@
+
+
+ifneq ($(MAKECMDGOALS),clean)
+-include $(DEPENDS_M)
 endif
 
 #Clean the project
