@@ -6,7 +6,7 @@ UTIL := maputil
 
 # Must be the first rule
 .PHONY: game
-game: $(PROGRAM)
+gaming: $(PROGRAM)
 
 
 SOURCES := $(wildcard src/*.c)
@@ -16,14 +16,14 @@ DEPENDS := $(SOURCES:src/%.c=deps/%.d)
 MAKEFILES := Makefile
 
 CUSTOM_OBJ := obj/mapio.o obj/tempo.o
-LIB	:= lib/libgame.a
+LIB	:= lib/libgame.a -lpthread
 
-#CC=gcc
 CFLAGS := -O3 -g -std=c99 -Wall -Wno-unused-function
 CFLAGS += -DPADAWAN
 CFLAGS += -I./include
 CFLAGS += $(shell pkg-config SDL2_image SDL2_mixer --cflags)
 LDLIBS := $(shell pkg-config SDL2_image SDL2_mixer --libs)
+
 
 $(OBJECTS): $(MAKEFILES)
 
@@ -40,26 +40,22 @@ $(OBJECTS): obj/%.o: src/%.c
 
 #Compilation of maputil
 .PHONY: maputil
-maputil: $(UTIL)
+maputile: $(UTIL)
 
 
 SOURCES_M := $(wildcard util/*.c)
 OBJECTS_M := $(SOURCES_M:util/%.c=obj/%.o)
 DEPENDS := $(SOURCES_M:util/%.c=deps/%.d)
 
-MAKEFILES := Makefile
-
 CUSTOM_OBJ_M := obj/maputil.o
-LIB	:= lib/libgame.a
 
-#CC=gcc
 CFLAGS := -O3 -g -std=c99 -Wall -Wno-unused-function
 CFLAGS += -DPADAWAN
 CFLAGS += -I./include
 CFLAGS += $(shell pkg-config SDL2_image SDL2_mixer --cflags)
 LDLIBS := $(shell pkg-config SDL2_image SDL2_mixer --libs)
 
-$(OBJECTS): $(MAKEFILES)
+$(OBJECTS_M): $(MAKEFILES)
 
 ifndef LIB_MODE
 $(LIB): $(filter-out $(CUSTOM_OBJ_M),$(OBJECTS_M))
