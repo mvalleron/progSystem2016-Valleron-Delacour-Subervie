@@ -1,4 +1,3 @@
-
 LIB_MODE=1
 
 PROGRAM	:= game
