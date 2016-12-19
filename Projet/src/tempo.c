@@ -22,8 +22,16 @@ static unsigned long get_time (void)
 }
 
 #ifdef PADAWAN
+struct evenement{
+  void* parametre;
+  int temps;
+};
+struct evenement t[100];
+int itterateur = 0;
 void traitant(int s){
-  printf("signal %d\n", s);
+  printf ("sdl_push_event(%p) appelée au temps %ld\n", t[0].parametre, get_time ());
+  sdl_push_event(t[0].parametre);
+  itterateur--;
 }
 
 void *f(void *i){
@@ -34,8 +42,7 @@ void *f(void *i){
   s.sa_handler = traitant;
   sigemptyset(&s.sa_mask);
   s.sa_flags=0;
-  sigaction(SIGINT,&s,NULL);
-  printf("ok\n");
+  sigaction(SIGALRM,&s,NULL);
   while(1){
     sigsuspend(&empty_mask);
   }
@@ -43,15 +50,54 @@ void *f(void *i){
 // timer_init returns 1 if timers are fully implemented, 0 otherwise
 int timer_init (void)
 {
-  printf("ok\n");
   pthread_t pid;
   pthread_create(&pid,NULL,f,(void *)pid);
-  return 0; // Implementation not ready
+  return 1; // Implementation ready
 }
 
 void timer_set (Uint32 delay, void *param)
 {
-  // TODO
+  int i = 0;
+  int time = delay+get_time();
+  while(t[i].temps<time && i!=itterateur){
+    i++;
+  }
+  int j = 0;
+  while(i!=itterateur-j){
+    int tmp_temps = t[itterateur-j-1].temps;
+    void* tmp_param = t[itterateur-j-1].parametre;
+    t[itterateur-j-1].temps = t[itterateur-j].temps;
+    t[itterateur-j-1].parametre = t[itterateur-j].parametre;
+    t[itterateur-j].temps = tmp_temps;
+    t[itterateur-j].parametre = tmp_param;
+    j++;
+  }
+  t[i].temps = time;
+  t[i].parametre = param;
+  itterateur++;
+  while(t[0].temps!=time){
+    printf("ok\n");
+    struct itimerval timer;
+    timer.it_interval.tv_sec = 0;
+    timer.it_interval.tv_usec = 0;
+    timer.it_value.tv_sec = t[0].temps-get_time(); 
+    timer.it_value.tv_usec = 0;  
+    int err = setitimer(ITIMER_REAL,&timer,0);
+    if(err){
+      perror("setitimer");
+      exit(1);
+    }
+  }
 }
 
 #endif
+/* 900 600 1400 0 0 0 0 0 0 
+900
+900 600 re
+600 900
+600 900 el
+900
+900 1400
+900 1400 el
+1400
+*/
