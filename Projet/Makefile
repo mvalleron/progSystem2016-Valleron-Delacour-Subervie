@@ -5,7 +5,7 @@ UTIL := maputil
 
 # Must be the first rule
 .PHONY: game
-game: $(PROGRAM)
+gaming: $(PROGRAM)
 
 
 SOURCES := $(wildcard src/*.c)
@@ -39,16 +39,15 @@ $(OBJECTS): obj/%.o: src/%.c
 
 #Compilation of maputil
 .PHONY: maputil
-maputil: $(UTIL)
+maputile: $(UTIL)
 
 
 SOURCES_M := $(wildcard util/*.c)
 OBJECTS_M := $(SOURCES_M:util/%.c=obj/%.o)
-DEPENDS_M := $(SOURCES_M:util/%.c=deps/%.d)
+DEPENDS := $(SOURCES_M:util/%.c=deps/%.d)
 
-MAKEFILES := Makefile
 
-CUSTOM_OBJ_M := obj/maputil.o
+CUSTOM_OBJ_M := obj/maputil.o obj/mapio.o
 LIB	:= lib/libgame.a
 
 #CC=gcc
@@ -58,14 +57,14 @@ CFLAGS += -I./include
 CFLAGS += $(shell pkg-config SDL2_image SDL2_mixer --cflags)
 LDLIBS := $(shell pkg-config SDL2_image SDL2_mixer --libs)
 
-$(OBJECTS): $(MAKEFILES)
+$(OBJECTS_M): $(MAKEFILES)
 
-ifndef LIB_MODE_M
+ifndef LIB_MODE
 $(LIB): $(filter-out $(CUSTOM_OBJ_M),$(OBJECTS_M))
 	ar -crs $(LIB_M) $^
 endif
 
-$(UTIL): $(CUSTOM_OBJ_M) $(LIB_M)
+$(UTIL): $(CUSTOM_OBJ_M) $(LIB)
 	$(CC) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 $(OBJECTS_M): obj/%.o: util/%.c
@@ -87,19 +86,6 @@ ifneq ($(MAKECMDGOALS),clean)
 -include $(DEPENDS)
 endif
 
-.PHONY: depend_m
-depend_m: $(DEPENDS_M)
-
-$(DEPENDS_M): $(MAKEFILES)
-
-$(DEPENDS_M): deps/%.d: util/%.c
-	$(CC) $(CFLAGS) -MM $< | \
-		sed -e 's|\(.*\)\.o:|deps/\1.d obj/\1.o:|g' > $@
-
-
-ifneq ($(MAKECMDGOALS),clean)
--include $(DEPENDS_M)
-endif
 
 #Clean the project
 .PHONY: clean
