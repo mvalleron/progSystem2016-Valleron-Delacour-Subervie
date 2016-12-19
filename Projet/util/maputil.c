@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 
 #include "map.h"
 #include "error.h"
@@ -109,7 +110,7 @@ void setWidth(int Fd,int w)
   int oldW=getWidth(Fd);
 
   if(oldW==w)
-    break;
+    return;
    
   int h=getHeight(Fd);
   int j=0;
@@ -147,11 +148,12 @@ void setWidth(int Fd,int w)
 	  j++;
 	}
       //Si la taille est rétrécie
-      if(oldW>W)
+      if(oldW>w)
 	lseek(Fd,(oldW-w)*sizeof(int),SEEK_CUR);
       //Si la taille est augmentée
       if(oldW<w)
 	{
+	  int k;
 	  for(k=j;k<j+(w-oldW);k++)
 	    t[k]=MAP_OBJECT_NONE;
 	  j=k;
@@ -179,7 +181,7 @@ void setWidth(int Fd,int w)
     }
   //Tronque le fichier s'il est plus petit
   if(oldW>w)
-    truncate(Fd,(h*(oldW-w))*sizeof(int));
+    ftruncate(Fd,(h*(oldW-w))*sizeof(int));
 }
 
 
