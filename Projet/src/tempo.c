@@ -24,13 +24,17 @@ static unsigned long get_time (void)
 #ifdef PADAWAN
 struct evenement{
   void* parametre;
-  int temps;
+  unsigned long temps;
 };
 struct evenement t[100];
 int itterateur = 0;
 void traitant(int s){
   printf ("sdl_push_event(%p) appelée au temps %ld\n", t[0].parametre, get_time ());
   sdl_push_event(t[0].parametre);
+  for(int i = 0; i < itterateur+1; i++){
+    t[i].temps = t[i+1].temps;
+    t[i].parametre = t[i+1].parametre;
+  }
   itterateur--;
 }
 
@@ -47,10 +51,11 @@ void *f(void *i){
     sigsuspend(&empty_mask);
   }
 }
+
 // timer_init returns 1 if timers are fully implemented, 0 otherwise
 int timer_init (void)
 {
-  pthread_t pid;
+  pthread_t pid = (pthread_t)NULL;
   pthread_create(&pid,NULL,f,(void *)pid);
   return 1; // Implementation ready
 }
@@ -58,7 +63,7 @@ int timer_init (void)
 void timer_set (Uint32 delay, void *param)
 {
   int i = 0;
-  int time = delay+get_time();
+  unsigned long time = (unsigned long)(delay*1000)+get_time();
   while(t[i].temps<time && i!=itterateur){
     i++;
   }
@@ -75,29 +80,16 @@ void timer_set (Uint32 delay, void *param)
   t[i].temps = time;
   t[i].parametre = param;
   itterateur++;
-  while(t[0].temps!=time){
-    printf("ok\n");
-    struct itimerval timer;
-    timer.it_interval.tv_sec = 0;
-    timer.it_interval.tv_usec = 0;
-    timer.it_value.tv_sec = t[0].temps-get_time(); 
-    timer.it_value.tv_usec = 0;  
-    int err = setitimer(ITIMER_REAL,&timer,0);
-    if(err){
-      perror("setitimer");
-      exit(1);
-    }
+  struct itimerval timer;
+  timer.it_interval.tv_sec = 0;
+  timer.it_interval.tv_usec = 0;
+  timer.it_value.tv_sec = (t[0].temps-get_time())/1000000; 
+  timer.it_value.tv_usec = (t[0].temps-get_time())%1000000;  
+  int err = setitimer(ITIMER_REAL,&timer,0);
+  if(err){
+    perror("setitimer");
+    exit(1);
   }
 }
 
 #endif
-/* 900 600 1400 0 0 0 0 0 0 
-900
-900 600 re
-600 900
-600 900 el
-900
-900 1400
-900 1400 el
-1400
-*/
