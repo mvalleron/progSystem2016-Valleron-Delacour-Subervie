@@ -216,6 +216,7 @@ int traitementOption(char *optTab[],int Fd, char *option){
   else if(!strcmp(option,optTab[4]))
     {
       printf("%s",optTab[4]);
+      setWidth(Fd,*(option+1));
       n=2;
     }
   else if(!strcmp(option,optTab[5]))
