@@ -44,11 +44,11 @@ maputile: $(UTIL)
 
 SOURCES_M := $(wildcard util/*.c)
 OBJECTS_M := $(SOURCES_M:util/%.c=obj/%.o)
-DEPENDS := $(SOURCES_M:util/%.c=deps/%.d)
+DEPENDS_M := $(SOURCES_M:util/%.c=deps/%.d)
 
 
 CUSTOM_OBJ_M := obj/maputil.o obj/mapio.o
-LIB	:= lib/libgame.a
+LIB_M	:= lib/libgame.a
 
 #CC=gcc
 CFLAGS := -O3 -g -std=c99 -Wall -Wno-unused-function
@@ -59,16 +59,25 @@ LDLIBS := $(shell pkg-config SDL2_image SDL2_mixer --libs)
 
 $(OBJECTS_M): $(MAKEFILES)
 
-ifndef LIB_MODE
-$(LIB): $(filter-out $(CUSTOM_OBJ_M),$(OBJECTS_M))
+ifndef LIB_MODE_M
+$(LIB_M): $(filter-out $(CUSTOM_OBJ_M),$(OBJECTS_M))
 	ar -crs $(LIB_M) $^
 endif
 
-$(UTIL): $(CUSTOM_OBJ_M) $(LIB)
+$(UTIL): $(CUSTOM_OBJ_M) $(LIB_M)
 	$(CC) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 $(OBJECTS_M): obj/%.o: util/%.c
 	$(CC) -o $@ $(CFLAGS) -c $<
+
+.PHONY: depend_m
+depend: $(DEPENDS_M)
+
+$(DEPENDS_M): $(MAKEFILES)
+
+$(DEPENDS_M): deps/%.d: src/%.c
+	$(CC) $(CFLAGS) -MM $< | \
+		sed -e 's|\(.*\)\.o:|deps/\1.d obj/\1.o:|g' > $@
 
 
 
@@ -83,7 +92,7 @@ $(DEPENDS): deps/%.d: src/%.c
 
 
 ifneq ($(MAKECMDGOALS),clean)
--include $(DEPENDS)
+-include $(DEPENDS) $(DEPENDS_M)
 endif
 
 
