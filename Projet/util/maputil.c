@@ -47,6 +47,7 @@ void optionsFree(char *t[])
     free(t[i]);
 }
 
+
 //Renvoie la largeur d'une carte
 int getWidth(int Fd)
 {
@@ -108,10 +109,9 @@ int getObjects(int Fd)
 void setWidth(int Fd,int w)
 {
   int oldW=getWidth(Fd);
-
+  printf("\n%d\n",w);
   if(oldW==w)
     return;
-   
   int h=getHeight(Fd);
   int j=0;
   int t[h*w];
@@ -180,8 +180,8 @@ void setWidth(int Fd,int w)
 	}
     }
   //Tronque le fichier s'il est plus petit
-  if(oldW>w)
-    ftruncate(Fd,(h*(oldW-w))*sizeof(int));
+  if(oldW>w);
+    //ftruncate(Fd,(h*(oldW-w))*sizeof(int));
 }
 
 
@@ -216,7 +216,7 @@ int traitementOption(char *optTab[],int Fd, char *option){
   else if(!strcmp(option,optTab[4]))
     {
       printf("%s",optTab[4]);
-      setWidth(Fd,*(option+1));
+      setWidth(Fd,option[11]);
       n=2;
     }
   else if(!strcmp(option,optTab[5]))
@@ -245,11 +245,16 @@ int traitementOption(char *optTab[],int Fd, char *option){
 
 int main(int argc, char *argv[])
 {
+  char *fichier = argv[1];
+  char *fonction = argv[2];
+  int nombre = atoi(argv[3]);
+  printf("\n%s %s %d\n",fichier,fonction,nombre);
   char *optTab[NB_OPTIONS];
   int k=2;
   int n,Fd;
   char *option;
-  
+  /*if(argc>3)
+    argv[3] = (char*)(atoi(argv[3]));*/
   if(argc<3)
     usage(argv[0]);
 
@@ -270,7 +275,6 @@ int main(int argc, char *argv[])
       n =traitementOption(optTab,Fd,option); //n nb arg utilisé
       k+= n;
     }
-  
   optionsFree(optTab);
   
   return EXIT_SUCCESS;
