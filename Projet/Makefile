@@ -45,20 +45,16 @@ maputile: $(UTIL)
 
 SOURCES_M := $(wildcard util/*.c)
 OBJECTS_M := $(SOURCES_M:util/%.c=obj/%.o)
-DEPENDS := $(SOURCES_M:util/%.c=deps/%.d)
+DEPENDS_M := $(SOURCES_M:util/%.c=deps/%.d)
 
 CUSTOM_OBJ_M := obj/maputil.o
 
-CFLAGS := -O3 -g -std=c99 -Wall -Wno-unused-function
-CFLAGS += -DPADAWAN
-CFLAGS += -I./include
-CFLAGS += $(shell pkg-config SDL2_image SDL2_mixer --cflags)
-LDLIBS := $(shell pkg-config SDL2_image SDL2_mixer --libs)
+
 
 $(OBJECTS_M): $(MAKEFILES)
 
-ifndef LIB_MODE
-$(LIB): $(filter-out $(CUSTOM_OBJ_M),$(OBJECTS_M))
+ifndef LIB_MODE_M
+$(LIB_M): $(filter-out $(CUSTOM_OBJ_M),$(OBJECTS_M))
 	ar -crs $(LIB_M) $^
 endif
 
@@ -69,19 +65,24 @@ $(OBJECTS_M): obj/%.o: util/%.c
 	$(CC) -o $@ $(CFLAGS) -c $<
 
 
+.PHONY: depend_m
+depend_m: $(DEPENDS_M)
+$(DEPENDS_M): $(MAKEFILES)
+$(DEPENDS_M): deps/%.d: src/%.c
+	$(CC) $(CFLAGS) -MM $< | \
+		sed -e 's|\(.*\)\.o:|deps/\1.d obj/\1.o:|g' > $@
+
 
 .PHONY: depend
 depend: $(DEPENDS)
-
 $(DEPENDS): $(MAKEFILES)
-
 $(DEPENDS): deps/%.d: src/%.c
 	$(CC) $(CFLAGS) -MM $< | \
 		sed -e 's|\(.*\)\.o:|deps/\1.d obj/\1.o:|g' > $@
 
 
 ifneq ($(MAKECMDGOALS),clean)
--include $(DEPENDS)
+-include $(DEPENDS) $(DEPENDS_M)
 endif
 
 #Clean the project
