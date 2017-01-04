@@ -49,6 +49,7 @@ void optionsFree(char *t[])
     free(t[i]);
 }
 
+
 //Renvoie la largeur d'une carte
 int getWidth(int Fd)
 {
@@ -304,10 +305,13 @@ int traitementOption(char *optTab[],int Fd, char *argv[],int k)
 
 int main(int argc, char *argv[])
 {
+  char *fichier = argv[1];
+  char *fonction = argv[2];
+  int nombre = atoi(argv[3]);
+  printf("\n%s %s %d\n",fichier,fonction,nombre);
   char *optTab[NB_OPTIONS];
   int k=2;
   int n,Fd;
-  
   if(argc<3)
     usage(argv[0]);
 
@@ -333,7 +337,6 @@ int main(int argc, char *argv[])
 	  break;
 	}
     }
-  
   optionsFree(optTab);
   
   return EXIT_SUCCESS;
