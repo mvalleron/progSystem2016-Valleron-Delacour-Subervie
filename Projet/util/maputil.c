@@ -153,7 +153,7 @@ void setWidth(int Fd,int w)
 	      perror("read");
 	      exit(EXIT_FAILURE);
 	    }
-	  e=lseek(Fd,(lenName+nbCaracObj)*sizeof(int),SEEK_SET);
+	  e=lseek(Fd,(lenName+nbCaracObj)*sizeof(int),SEEK_CUR);
 	  if(e==-1)
 	    {
 	      perror("lseek");
@@ -165,13 +165,16 @@ void setWidth(int Fd,int w)
 	{
 	  for(int x=0;x<oldW;x++)
 	    {
-	      e=read(Fd,t+(y*oldW+x),sizeof(int));
-	      if(e==-1)
+	      if(x<w)
 		{
-		  perror("read");
-		  exit(EXIT_FAILURE);
+		  e=read(Fd,&(t[j]),sizeof(int));
+		  if(e==-1)
+		    {
+		      perror("read");
+		      exit(EXIT_FAILURE);
+		    }
+		  j++;
 		}
-	      j++;
 	    }
 	  //Si la taille est rétrécie
 	  if(oldW>w)
@@ -180,7 +183,9 @@ void setWidth(int Fd,int w)
 	  if(oldW<w)
 	    {
 	      for(k=j;k<j+(w-oldW);k++)
-		t[k]=MAP_OBJECT_NONE;
+		{
+		  t[k]=MAP_OBJECT_NONE;
+		}
 	      j=k;
 	    }
 	}
@@ -200,7 +205,7 @@ void setWidth(int Fd,int w)
 	      perror("read");
 	      exit(EXIT_FAILURE);
 	    }
-	  e=lseek(Fd,(lenName+nbCaracObj)*sizeof(int),SEEK_SET);
+	  e=lseek(Fd,(lenName+nbCaracObj)*sizeof(int),SEEK_CUR);
 	  if(e==-1)
 	    {
 	      perror("lseek");
@@ -223,7 +228,7 @@ void setWidth(int Fd,int w)
       //Tronque le fichier s'il est plus petit
       if(oldW>w)
 	{
-	  int offset=lseek(Fd,0,SEEK_CUR);
+	  int offset=lseek(Fd,oldW-w,SEEK_END);
 	  ftruncate(Fd,offset);
 	}
     }
@@ -307,10 +312,6 @@ int traitementOption(char *optTab[],int Fd, char *argv[],int k, int argc)
 
 int main(int argc, char *argv[])
 {
-  char *fichier = argv[1];
-  char *fonction = argv[2];
-  int nombre = atoi(argv[3]);
-  printf("\n%s %s %d\n",fichier,fonction,nombre);
   char *optTab[NB_OPTIONS];
   int k=2;
   int n,Fd;
@@ -340,7 +341,7 @@ int main(int argc, char *argv[])
 	}
     }
   optionsFree(optTab);
-  
+  close(Fd);
   return EXIT_SUCCESS;
 }
 
