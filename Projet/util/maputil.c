@@ -236,7 +236,134 @@ void setWidth(int Fd,int w)
     printf("Nouvelle largeur non autorisee!\n");
 }
 
-
+//Change l'ancienne hauteur par la nouvelle h
+void setHeight(int Fd,int h)
+{
+  if(12<=h && h<=20)
+    {
+      int oldH=getHeight(Fd);
+      
+      if(oldH==h)
+	return;
+      
+      int w=getWidth(Fd);
+      int j=0;
+      int lenName;
+      int k;
+      int t[h*w];
+      int nbObjects=getObjects(Fd);
+      int nbCaracObj=5;
+      
+      int e=lseek(Fd,sizeof(int),SEEK_SET);
+      if(e==-1)
+	{
+	  perror("lseek");
+	  exit(EXIT_FAILURE);
+	}
+      e=write(Fd,&h,sizeof(int));
+      if(e==-1)
+	{
+	  perror("write");
+	  exit(EXIT_FAILURE);
+	}
+      //Place le curseur au début de la liste des objets
+      e=lseek(Fd,3*sizeof(int),SEEK_SET);
+      if(e==-1)
+	{
+	  perror("lseek");
+	  exit(EXIT_FAILURE);
+	}
+      //Récupère la taille du nom de chaque fichier dans lenName, et décale de cette taille plus le nombre de caractéristiques des objets
+      for(int i=0;i<nbObjects;i++)
+	{
+	  e=read(Fd,&lenName,sizeof(int));
+	  if(e==-1)
+	    {
+	      perror("read");
+	      exit(EXIT_FAILURE);
+	    }
+	  e=lseek(Fd,(lenName+nbCaracObj)*sizeof(int),SEEK_CUR);
+	  if(e==-1)
+	    {
+	      perror("lseek");
+	      exit(EXIT_FAILURE);
+	    }
+	}
+      //Recopie des éléments communs aux nouvelles et anciennes tailles
+      for(int y=0;y<oldH;y++)
+	{
+	  //Si la taille est augmentée
+	  if(y<h-oldH)
+	    {
+	       for(k=j;k<j+(h-oldH)*w;k++)
+		{
+		  t[k]=MAP_OBJECT_NONE;
+		}
+	      j=k;
+	    }
+	  else if(y>oldH-h)
+	    {
+	      for(int x=0;x<w;x++)
+		{
+		  e=read(Fd,&(t[j]),sizeof(int));
+		  if(e==-1)
+		    {
+		      perror("read");
+		      exit(EXIT_FAILURE);
+		    }
+		  j++;
+		}
+	    }
+	  //Si la taille est rétrécie
+	  else
+	    lseek(Fd,((oldH-h)*w)*sizeof(int),SEEK_CUR);
+	}
+      //Place le curseur au début de la liste des objets
+      e=lseek(Fd,3*sizeof(int),SEEK_SET);
+      if(e==-1)
+	{
+	  perror("lseek");
+	  exit(EXIT_FAILURE);
+	}
+      //Récupère la taille du nom de chaque fichier dans lenName, et décale de cette taille plus le nombre de caractéristiques des objets
+      for(int i=0;i<nbObjects;i++)
+	{
+	  e=read(Fd,&lenName,sizeof(int));
+	  if(e==-1)
+	    {
+	      perror("read");
+	      exit(EXIT_FAILURE);
+	    }
+	  e=lseek(Fd,(lenName+nbCaracObj)*sizeof(int),SEEK_CUR);
+	  if(e==-1)
+	    {
+	      perror("lseek");
+	      exit(EXIT_FAILURE);
+	    }
+	}
+      //Ecrit les éléments du tableau dans le fichier Fd
+      for(int y=0;y<h;y++)
+	{
+	  for(int x=0;x<w;x++)
+	    {
+	      e=write(Fd,t+(y*w+x),sizeof(int));
+	      if(e==-1)
+		{
+		  perror("write");
+		  exit(EXIT_FAILURE);
+		}
+	    }
+	}
+      //Tronque le fichier s'il est plus petit
+      if(oldH>h)
+	{
+	  int offset=lseek(Fd,(oldH-h),SEEK_END);
+	  ftruncate(Fd,offset);
+	}
+    }
+  else
+    printf("Nouvelle hauteur non autorisee!\n");
+}
 //Teste la correspondance entre l'option demandée et les options existantes, et appelle une fonction correspondante si elle existe
 int traitementOption(char *optTab[],int Fd, char *argv[],int k, int argc)
 {
@@ -286,7 +413,10 @@ int traitementOption(char *optTab[],int Fd, char *argv[],int k, int argc)
   //setheight
   else if(!strcmp(option,optTab[5]))
     {
-      printf("%s",optTab[5]);
+      printf("%s\t",optTab[5]);
+      int h=atoi(arg);
+      printf("%d\n",h);
+      setHeight(Fd,h);
       n=2;
     }
   //setobjects
