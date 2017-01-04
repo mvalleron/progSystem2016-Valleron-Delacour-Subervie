@@ -48,7 +48,7 @@ $(DEPENDS): deps/%.d: src/%.c
 		sed -e 's|\(.*\)\.o:|deps/\1.d obj/\1.o:|g' > $@
 
 ifneq ($(MAKECMDGOALS),clean)
--include $(DEPENDS) $(DEPENDS_M)
+-include $(DEPENDS)
 endif
 
 maputil: util/maputil.c 

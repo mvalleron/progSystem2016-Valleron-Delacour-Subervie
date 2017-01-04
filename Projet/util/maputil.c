@@ -233,10 +233,12 @@ void setWidth(int Fd,int w)
 
 
 //Teste la correspondance entre l'option demandée et les options existantes, et appelle une fonction correspondante si elle existe
-int traitementOption(char *optTab[],int Fd, char *argv[],int k)
+int traitementOption(char *optTab[],int Fd, char *argv[],int k, int argc)
 {
   char *option=argv[k];
-  char *arg=argv[k+1];
+  char *arg;
+  if(k<argc)
+    arg=argv[k+1];
   int n=0;
   printf("\nOption choisie :\t");
   //getwidth
@@ -329,7 +331,7 @@ int main(int argc, char *argv[])
   //k est la position de l'option traitée dans argv
   while (k<argc)
     {
-      n =traitementOption(optTab,Fd,argv,k); //n est le nombre d'arguments utilisés
+      n =traitementOption(optTab,Fd,argv,k,argc); //n est le nombre d'arguments utilisés
       k+= n;
       if(k>=2)
 	{
