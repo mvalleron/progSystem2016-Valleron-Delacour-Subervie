@@ -55,10 +55,10 @@ void map_save (char *filename)
     exit(1);
   }
   lseek(output, 0, SEEK_SET);
-  //-----------------sauvgarde de la taille---------------------
+  //-----------------sauvegarde de la taille---------------------
   write(output,&width,sizeof(int));
   write(output,&height,sizeof(int));
-  //------------------sauvgarde des objets----------------------
+  //------------------sauvegarde des objets----------------------
   write(output,&nb_object,sizeof(int));
   for(int i = 0; i < nb_object; i++){
     frame = map_get_frames(i);
@@ -97,7 +97,7 @@ void map_load (char *filename)
   int err,fd;
   char n,type1,type2,type3,type4;
   char *adress = malloc(sizeof(char));
-  //--------------ouverture du fichier de sauvgarde-----------------
+  //--------------ouverture du fichier de sauvegarde-----------------
   fd = open(filename, O_RDONLY ,0666);
   if(fd == -1){
     fprintf (stderr,"Désolé: %s n'existe pas\n",filename);
