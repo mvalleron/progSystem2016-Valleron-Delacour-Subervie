@@ -479,7 +479,6 @@ void setObjects(int Fd,char *name,int frame,int solid,int destructible,int colle
       perror("write");
       exit(1);
     }
-  //**********************
   int lenName;
   e=lseek(Fd,3*sizeof(int),SEEK_SET);
   if(e==-1)
@@ -569,6 +568,179 @@ void setObjects(int Fd,char *name,int frame,int solid,int destructible,int colle
   free(adress);
 }
 
+void pruneOjects(int Fd){
+  int nbObjects=getObjects(Fd);
+  int nbObjectsTmp=0;
+  int t[nbObjects];
+  int tlenName[nbObjects];
+  char **tname = malloc(sizeof(char *)*nbObjects);
+  for(int k = 0;k<nbObjects;k++)
+    {
+      tname[k]= malloc(sizeof(char)*20);
+    }
+  int tframe[nbObjects];
+  int tsolid[nbObjects];
+  int tdestructible[nbObjects];
+  int tcollectible[nbObjects];
+  int tgenerator[nbObjects];
+  for(int i = 0; i< nbObjects; i++)
+    {
+      t[i] = 0;
+    }
+  int w=getWidth(Fd);
+  int h=getHeight(Fd);
+  int tab[w*h];
+  int object;
+  int e=lseek(Fd,3*sizeof(int),SEEK_SET);
+  if(e==-1)
+    {
+      perror("lseek");
+      exit(EXIT_FAILURE);
+    }
+  for(int i=0;i<nbObjects;i++)
+    {
+      e=read(Fd,&tlenName[i],sizeof(int));
+      if(e==-1)
+	{
+	  perror("read1");
+	  exit(EXIT_FAILURE);
+	}
+      for(int j = 0; j < tlenName[i];j++)
+	{
+	  e=read(Fd,tname[i]+j,sizeof(int));
+	  if(e==-1)
+	    {
+	      perror("read2");
+	      exit(EXIT_FAILURE);
+	    }
+	}
+      e=read(Fd,&tframe[i],sizeof(int));
+      if(e==-1)
+	{
+	  perror("read3");
+	  exit(EXIT_FAILURE);
+	}
+      e=read(Fd,&tsolid[i],sizeof(int));
+      if(e==-1)
+	{
+	  perror("read4");
+	  exit(EXIT_FAILURE);
+	}
+      e=read(Fd,&tdestructible[i],sizeof(int));
+      if(e==-1)
+	{
+	  perror("read5");
+	  exit(EXIT_FAILURE);
+	}
+      e=read(Fd,&tcollectible[i],sizeof(int));
+      if(e==-1)
+	{
+	  perror("read6");
+	  exit(EXIT_FAILURE);
+	}
+      e=read(Fd,&tgenerator[i],sizeof(int));
+      if(e==-1)
+	{
+	  perror("read7");
+	  exit(EXIT_FAILURE);
+	}
+    }
+  for(int y=0;y<h;y++)
+    {
+      for(int x=0;x<w;x++)
+	{
+	  e=read(Fd,&object,sizeof(int));
+	  if(e==-1)
+	    {
+	      perror("write");
+	      exit(EXIT_FAILURE);
+	    }
+	  tab[x+y*w]= object;
+	  if(object!=-1 && t[object] != 1)
+	    {
+	      t[object] = 1;
+	      nbObjectsTmp++;
+	    }
+	}
+    }
+  e=lseek(Fd,2*sizeof(int),SEEK_SET);
+  if(e==-1)
+    {
+      perror("lseek");
+      exit(EXIT_FAILURE);
+    }
+  e=write(Fd,&nbObjectsTmp,sizeof(int));
+  if(e==-1)
+    {
+      perror("write");
+      exit(EXIT_FAILURE);
+    }
+  for(int i=0;i<nbObjects;i++)
+    {
+      if(t[i])
+	{
+	  e=write(Fd,&tlenName[i],sizeof(int));
+	  if(e==-1)
+	    {
+	      perror("write");
+	      exit(EXIT_FAILURE);
+	    }
+	  for(int j = 0; j<tlenName[i];j++)
+	    {
+	      e=write(Fd,&tname[i][j],sizeof(int));
+	      if(e==-1)
+		{
+		  perror("write");
+		  exit(EXIT_FAILURE);
+		}
+	    }
+	  printf("\n");
+	  e=write(Fd,&tframe[i],sizeof(int));
+	  if(e==-1)
+	    {
+	      perror("write");
+	      exit(EXIT_FAILURE);
+	    }
+	  e=write(Fd,&tsolid[i],sizeof(int));
+	  if(e==-1)
+	    {
+	      perror("write");
+	      exit(EXIT_FAILURE);
+	    }
+	  e=write(Fd,&tdestructible[i],sizeof(int));
+	  if(e==-1)
+	    {
+	      perror("write");
+	      exit(EXIT_FAILURE);
+	    }
+	  e=write(Fd,&tcollectible[i],sizeof(int));
+	  if(e==-1)
+	    {
+	      perror("write");
+	      exit(EXIT_FAILURE);
+	    }
+	  e=write(Fd,&tgenerator[i],sizeof(int));
+	  if(e==-1)
+	    {
+	      perror("write");
+	      exit(EXIT_FAILURE);
+	    }
+	}
+    }
+  for(int y=0;y<h;y++)
+    {
+      for(int x=0;x<w;x++)
+	{
+	  e=write(Fd,&tab[y*w+x],sizeof(int));
+	  if(e==-1)
+	    {
+	      perror("write");
+	      exit(EXIT_FAILURE);
+	    }
+	}
+    }
+}
+
 //Teste la correspondance entre l'option demandée et les options existantes, et appelle une fonction correspondante si elle existe
 int traitementOption(char *optTab[],int Fd, char *argv[],int k, int argc)
 {
@@ -627,7 +799,7 @@ int traitementOption(char *optTab[],int Fd, char *argv[],int k, int argc)
   //setobjects
   else if(!strcmp(option,optTab[6]))
     {
-      printf("%s",optTab[6]);
+      printf("%s\n",optTab[6]);
       if((argc-3)%6 != 0){
 	fprintf(stderr,"Erreur, nombre d'arguments non valide\n");
 	exit(1);
@@ -636,25 +808,58 @@ int traitementOption(char *optTab[],int Fd, char *argv[],int k, int argc)
       arg=argv[k+2];
       int frame=atoi(arg);
       arg=argv[k+3];
-      int solid=atoi(arg);
-      arg=argv[k+4];
-      int destructible=atoi(arg);
-      arg=argv[k+5];
-      int collectible=atoi(arg);
-      arg=argv[k+6];
-      int generator=atoi(arg);
+      int solid,destructible,collectible,generator;
+      if(!strcmp(argv[k+3],"solid"))
+	solid=2;
+      else if(!strcmp(argv[k+3],"semi_solid"))
+	solid=1;
+      else if(!strcmp(argv[k+3],"air"))
+	solid=0;
+      else
+	{
+	  fprintf(stderr,"Erreur, arguments non valide:\tsolid/semi_solid/air\n\n");
+	  exit(1);
+	}
+      if(!strcmp(argv[k+4],"destructible"))
+	destructible=1;
+      else if(!strcmp(argv[k+4],"not-destructible"))
+	destructible=0;
+      else
+	{
+	  fprintf(stderr,"Erreur, arguments non valide:\tdestructible/not-destructible\n\n");
+	  exit(1);
+	}
+      if(!strcmp(argv[k+5],"collectible"))
+	collectible=1;
+      else if(!strcmp(argv[k+5],"not-collectible"))
+	collectible=0;
+      else
+	{
+	  fprintf(stderr,"Erreur, arguments non valide:\tcollectible/not-collectible\n\n");
+	  exit(1);
+	}
+      if(!strcmp(argv[k+6],"generator"))
+	generator=1;
+      else if(!strcmp(argv[k+6],"not-generator"))
+	generator=0;
+      else
+	{
+	  fprintf(stderr,"Erreur, arguments non valide:\tgenerator/not-generator\n\n");
+	  exit(1);
+	}
       setObjects(Fd,name,frame,solid,destructible,collectible,generator);
       n=argc-2;
     }
   //pruneobjects
   else if(!strcmp(option,optTab[7]))
     {
-      printf("%s",optTab[7]);
+      printf("%s\n",optTab[7]);
+      pruneOjects(Fd);
       n=1;
     }
   else
     {
-      printf("Option inconnue!");
+      printf("\nOption inconnue!\n");
       n=1;
     }
   printf("\n");
