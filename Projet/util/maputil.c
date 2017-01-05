@@ -290,16 +290,21 @@ void setHeight(int Fd,int h)
 	    }
 	}
       //Recopie des éléments communs aux nouvelles et anciennes tailles
-      for(int y=0;y<oldH;y++)
+      int tmpH = 0;
+      if(oldH>h)
+	tmpH = oldH+1;
+      else
+	tmpH = h; 
+      for(int y=0;y<tmpH;y++)
 	{
 	  //Si la taille est augmentée
 	  if(y<h-oldH)
 	    {
-	       for(k=j;k<j+(h-oldH)*w;k++)
+	      for(k=0;k<w;k++)
 		{
-		  t[k]=MAP_OBJECT_NONE;
+		  t[k+y*w]=MAP_OBJECT_NONE;
 		}
-	      j=k;
+	      j=k+y*w;
 	    }
 	  else if(y>oldH-h)
 	    {
@@ -315,8 +320,9 @@ void setHeight(int Fd,int h)
 		}
 	    }
 	  //Si la taille est rétrécie
-	  else
-	    lseek(Fd,((oldH-h)*w)*sizeof(int),SEEK_CUR);
+	  else if(y<oldH-h){
+	    lseek(Fd,w*sizeof(int),SEEK_CUR);
+	  }
 	}
       //Place le curseur au début de la liste des objets
       e=lseek(Fd,3*sizeof(int),SEEK_SET);
@@ -364,6 +370,205 @@ void setHeight(int Fd,int h)
   else
     printf("Nouvelle hauteur non autorisee!\n");
 }
+
+void setObjects(int Fd,char *name,int frame,int solid,int destructible,int collectible,int generator)
+{
+  int nbObjects=getObjects(Fd);
+  int w=getWidth(Fd);
+  int h=getHeight(Fd);
+  int t[h*w];
+  //Place le curseur au début de la liste des objets
+  int e=lseek(Fd,3*sizeof(int),SEEK_SET);
+  if(e==-1)
+    {
+      perror("lseek");
+      exit(EXIT_FAILURE);
+    }
+  char *adress = malloc(sizeof(char));
+  char *tmp1 = malloc(sizeof(char)*20);
+  for(int i=0;i<nbObjects;i++)
+    {
+      e = read(Fd,&adress[0], sizeof(int));
+      if(e == -1)
+	{
+	  fprintf (stderr,"Problème de format du fichier de sauvegarde\n");
+	  exit(1);
+	}
+      tmp1 = realloc(tmp1,((int)adress[0])*sizeof(char));
+      for(int j = 0; j < (int)adress[0];j++)
+	{
+	  e = read(Fd,&tmp1[j], sizeof(int));
+	  if(e == -1)
+	    {
+	      fprintf (stderr,"Problème de format du fichier de sauvegarde\n");
+	      exit(1);
+	    }
+	}
+      if(strcmp(tmp1, name)==0)
+	{
+	  e=write(Fd,&frame,sizeof(int));
+	  if(e == -1)
+	    {
+	      perror("write");
+	      exit(1);
+	    }
+	  e=write(Fd,&solid,sizeof(int));
+	  if(e == -1)
+	    {
+	      perror("write");
+	      exit(1);
+	    }
+	  e=write(Fd,&destructible,sizeof(int));
+	  if(e == -1)
+	    {
+	      perror("write");
+	      exit(1);
+	    }
+	  e=write(Fd,&collectible,sizeof(int));
+	  if(e == -1)
+	    {
+	      perror("write");
+	      exit(1);
+	    }
+	  e=write(Fd,&generator,sizeof(int));
+	  if(e == -1)
+	    {
+	      perror("write");
+	      exit(1);
+	    }
+	  free(tmp1);
+	  free(adress);
+	  return;
+	}
+      else
+	{
+	  e=lseek(Fd,5*sizeof(int),SEEK_CUR);
+	  if(e==-1)
+	    {
+	      perror("lseek");
+	      exit(EXIT_FAILURE);
+	    }
+	}
+      for(int k = 0; k < adress[0];k++)
+	{
+	  strcpy(tmp1+k,"");
+	}
+    }
+  for(int y=0;y<h;y++)
+    {
+      for(int x=0;x<w;x++)
+	{
+	  e=read(Fd,t+(y*w+x),sizeof(int));
+	  if(e==-1)
+	    {
+	      perror("read");
+	      exit(EXIT_FAILURE);
+	    }
+	}
+    }
+  e=lseek(Fd,2*sizeof(int),SEEK_SET);
+  if(e==-1)
+    {
+      perror("lseek");
+      exit(EXIT_FAILURE);
+    }
+  nbObjects++;
+  e=write(Fd,&nbObjects,sizeof(int));
+  if(e == -1)
+    {
+      perror("write");
+      exit(1);
+    }
+  //**********************
+  int lenName;
+  e=lseek(Fd,3*sizeof(int),SEEK_SET);
+  if(e==-1)
+    {
+      perror("lseek");
+      exit(EXIT_FAILURE);
+    }
+  for(int i=0;i<nbObjects-1;i++)
+    {
+      e=read(Fd,&lenName,sizeof(int));
+      if(e==-1)
+	{
+	  perror("read");
+	  exit(EXIT_FAILURE);
+	}
+      e=lseek(Fd,(lenName+5)*sizeof(int),SEEK_CUR);
+      if(e==-1)
+	{
+	  perror("lseek");
+	  exit(EXIT_FAILURE);
+	}
+    }
+  lenName = strlen(name);
+  e=write(Fd,&lenName,sizeof(int));
+  if(e == -1)
+    {
+      perror("write");
+      exit(1);
+    }
+  for(int j = 0; j < lenName; j++)
+    {
+      e = write(Fd,&name[j],sizeof(int));
+      if(e == -1)
+	{
+	  perror("write");
+	  exit(1);
+	}
+    }
+  if(e == -1)
+    {
+      perror("write");
+      exit(1);
+    }
+  e=write(Fd,&frame,sizeof(int));
+  if(e == -1)
+    {
+      perror("write");
+      exit(1);
+    }
+  e=write(Fd,&solid,sizeof(int));
+  if(e == -1)
+    {
+      perror("write");
+      exit(1);
+    }
+  e=write(Fd,&destructible,sizeof(int));
+  if(e == -1)
+    {
+      perror("write");
+      exit(1);
+    }
+  e=write(Fd,&collectible,sizeof(int));
+  if(e == -1)
+    {
+      perror("write");
+      exit(1);
+    }
+  e=write(Fd,&generator,sizeof(int));
+  if(e == -1)
+    {
+      perror("write");
+      exit(1);
+    }
+  for(int y=0;y<h;y++)
+    {
+      for(int x=0;x<w;x++)
+	{
+	  e=write(Fd,t+(y*w+x),sizeof(int));
+	  if(e==-1)
+	    {
+	      perror("write");
+	      exit(EXIT_FAILURE);
+	    }
+	}
+    }
+  free(tmp1);
+  free(adress);
+}
+
 //Teste la correspondance entre l'option demandée et les options existantes, et appelle une fonction correspondante si elle existe
 int traitementOption(char *optTab[],int Fd, char *argv[],int k, int argc)
 {
@@ -423,7 +628,23 @@ int traitementOption(char *optTab[],int Fd, char *argv[],int k, int argc)
   else if(!strcmp(option,optTab[6]))
     {
       printf("%s",optTab[6]);
-      n=2;
+      if((argc-3)%6 != 0){
+	fprintf(stderr,"Erreur, nombre d'arguments non valide\n");
+	exit(1);
+      }
+      char *name = argv[k+1];
+      arg=argv[k+2];
+      int frame=atoi(arg);
+      arg=argv[k+3];
+      int solid=atoi(arg);
+      arg=argv[k+4];
+      int destructible=atoi(arg);
+      arg=argv[k+5];
+      int collectible=atoi(arg);
+      arg=argv[k+6];
+      int generator=atoi(arg);
+      setObjects(Fd,name,frame,solid,destructible,collectible,generator);
+      n=argc-2;
     }
   //pruneobjects
   else if(!strcmp(option,optTab[7]))
