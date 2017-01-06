@@ -74,9 +74,29 @@ La gestion de cartes nous demandait de gérer deux principaux points:
 \end{description}
 
 \section{Sauvegarde et chargement d'une carte}
+Les fonctions de sauvegarde et de chargement se trouvent dans le fichier \textit{mapio.c} dans le dossier \textbf{src}.
+\begin{description}
+\item[Sauvegarde :] cette fonction permet de sauvegarder la largeur, la hauteur, les objets disponibles et l'emplacement des objets d'une carte dans le fichier \textit{saved.map} dans le dossier \textbf{maps}.
+  \item[Chargement :] cette fonction permet de charger la carte décrite dans le fichier \textit{saved.map} dans le dossier \textbf{maps} lors du lancement du jeu.
+\end{description}
+
 
 \section{Maputil}
-Maputil est un utilitaire de manipulation de carte. Il permet de consulter des informations contenues dans un fichier \textit{saved.map} et de modifier ces informations.
+Maputil est un utilitaire de manipulation de carte. Son code source se trouve dans le répertoire \textbf{util}. Il permet de consulter des informations contenues dans un fichier \textit{saved.map} et de modifier ces informations. Il contient les fonctions suivantes:
+\begin{description}
+  \item[usage :] cette fonction permet de vérifier que l'utilisateur a entré une commande valide. Sinon, il arrête l'exécution.
+  \item[optionsAlloc :] cette fonction alloue un tableau contenant toutes les options possibles de maputil.
+  \item[optionsFree :] cette fonction libère la mémoire allouée par la fonction précédente;
+  \item[getWidth :] cette fonction renvoie la largeur de la carte passée en paramètre.
+  \item[getHeight :] cette fonction renvoie la hauteur de la carte passée en paramètre.
+  \item[getObjects :] cette fonction renvoie le nombre d'objets d'une carte passée en paramètre.
+  \item[setWidth :] cette fonction change l'ancienne largeur d'une carte par une nouvelle.
+  \item[setHeight :] cette fonction change l'ancienne hauteur d'une carte par une nouvelle.
+  \item[setObjects :] cette fonction change l'ancienne liste d'objets d'une carte par une nouvelle.
+  \item[pruneObjects :] cette fonction supprime les objets inutilisés dans une carte de la liste d'objets de cette dernière.
+  \item[traitementOption :] cette fonction teste la correspondance entre l'option demandée et les options existantes, et appelle une fonction correspondante si elle existe. Elle renvoie le nombre d'arguments utilisés.
+\end{description}
+
 
 \chapter{Gestion des temporisateurs}
 \setcounter{section}{0}
@@ -88,8 +108,6 @@ Maputil est un utilitaire de manipulation de carte. Il permet de consulter des i
 
 \chapter{Couverture du travail demandé et son organisation}
 \setcounter{section}{0}
-\section{Arborescence}
-
 \section{Code parfaitement implémenté}
 
 \section{Code partiellement implémenté}
