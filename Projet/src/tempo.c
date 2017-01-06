@@ -33,6 +33,26 @@ struct evenement t[100];
 
 int compteur = 0;
 
+void trie(struct evenement t[], int compteur){
+  void* tmpparametre=0; 
+  unsigned long tmptemps=0;
+  for(int i = 0; i < compteur; i++)                               
+    {                                                                          
+      for(int j = i+1; j < compteur; j++)                     
+        {                                                 
+          if(t[j].temps < t[i].temps)                                                        
+            {                                                                  
+              tmpparametre = t[i].parametre;
+	      tmptemps = t[i].temps;
+              t[i].parametre = t[j].parametre;
+	      t[i].temps = t[j].temps;
+              t[j].parametre = tmpparametre;
+	      t[j].temps = tmptemps;
+            }                                                                  
+        }                                                                      
+    } 
+}
+
 void traitant(int s){
   printf ("sdl_push_event(%p) appelée au temps %ld\n", t[0].parametre, get_time ());
   sdl_push_event(t[0].parametre);
@@ -50,7 +70,6 @@ void traitant(int s){
     perror("setitimer");
     exit(1);
   }
-  
   compteur--;
 }
 
@@ -81,24 +100,11 @@ int timer_init (void)
 
 void timer_set (Uint32 delay, void *param)
 {
-  int i = 0;
   unsigned long time = (unsigned long)(delay*1000)+get_time();
-  while(t[i].temps<time && i!=compteur){
-    i++;
-  }
-  int j = 0;
-  while(i!=compteur-j){
-    int tmp_temps = t[compteur-j-1].temps;
-    void* tmp_param = t[compteur-j-1].parametre;
-    t[compteur-j-1].temps = t[compteur-j].temps;
-    t[compteur-j-1].parametre = t[compteur-j].parametre;
-    t[compteur-j].temps = tmp_temps;
-    t[compteur-j].parametre = tmp_param;
-    j++;
-  }
-  t[i].temps = time;
-  t[i].parametre = param;
+  t[compteur].temps = time;
+  t[compteur].parametre = param;
   compteur++;
+  trie(t,compteur);
   struct itimerval timer;
   timer.it_interval.tv_sec = 0;
   timer.it_interval.tv_usec = 0;
@@ -108,7 +114,10 @@ void timer_set (Uint32 delay, void *param)
   if(err){
     perror("setitimer");
     exit(1);
-    }
+  }
 }
 
 #endif
+
+//timerset :enfiler parametre, trié, timer init
+//traitant :trié, timer init
