@@ -747,8 +747,12 @@ void pruneOjects(int Fd){
 	      exit(EXIT_FAILURE);
 	    }
 	}
-      printf("\n");
     }
+  for(int k = 0;k<nbObjects;k++)
+    {
+      free(tname[k]);
+    }
+  free(tname);
 }
 
 //Teste la correspondance entre l'option demandée et les options existantes, et appelle une fonction correspondante si elle existe
