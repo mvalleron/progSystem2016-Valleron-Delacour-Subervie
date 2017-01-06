@@ -1,0 +1,96 @@
+\documentclass{report}
+
+\usepackage[francais]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\title{Rapport projet de programmation système 2016/2017}
+\author{Groupe IN501A2\\Gautier DELACOUR\\Bérangère SUBERVIE\\Maxime VALLERON}
+
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\chapter{Le projet}
+Ce projet a été réalisé dans le cadre de l'UE ``Programmation Système'' du semestre 5 de Licence d'Informatique de l'Université de Bordeaux. Le but était de développer des fonctionnalités destinées au développement d'un jeu de plateforme 2D à l'aide du langage de programmation C.
+
+\section{Le jeu}
+Nous avons disposé au départ de tous les fichiers nécessaires à la compilation d'un code permettant de créer un exécutable permettant de lancer le jeu. Celui-ci se présente comme une jeu de plateforme 2D, où il est possible d'ajouter ou d'enlever des objets à cette carte.
+
+\section{Sauvegarde, chargement, et l'utilitaire Maputil}
+La première partie du projet consistait à, d'une part, à permettre la sauvegarde de cartes, et leur chargement, et d'autre part, la modification de ces cartes grace à l'utilitaire Maputil.\\
+Celui-ci devait permettre d'obtenir les différentes données utiles d'une carte (sa largeur, sa hauteur, son nombre d'objets), mais aussi de modifier les données de cette carte.
+
+\section{Gestion des temporisateurs}
+La deuxième partie du projet nous demander de avoir une gestion de signaux permettant la présence d'objets dynamiques tels que des bombes ou des mines.
+
+%à compléter (Maxime)
+
+\chapter{Le code fourni et son organisation}
+\setcounter{section}{0}
+\section{Arborescence}
+L'arborescence du projet se trouve dans un un dossier \textbf{Projet}. Elle s'organise ainsi:
+\begin{description}
+\item[deps :] dossier où sont créés les fichiers de dépendances (.d) lors de la compilation.
+\item[images :] dossier où sont stockées toutes les images utilisées dans le jeu.
+\item[include :] dossier où se trouvent tous les fichiers en-tête (.h) définissant la signatures des fonctions dans les différents fichiers du code.
+\item[lib :] dossier où se trouve la bibliothèque \textit{libgame.a} où sont codés la plupart des fonctions permettant de jouer.
+\item[maps :] dossier où se trouvera les fichiers contenant les cartes sauvegardées. Il est pour l'instant inutilisé.
+\item[obj :] dossier où sont créés les fichiers objet (.o) à partir des fichiers de code (.c) lors de la compilation.
+\item[sons :] dossier où sont stockés tous les sons utilisés dans le jeu.
+\item[src :] dossier où se trouve le fichier mapio.c (il manque cependant le code de quelques fonctions).
+\item[util :] dossier où se trouve le fichier objet.txt où sont décrits les différents objets du jeu.
+\end{description}
+
+\section{Code}
+Du code était déjà fourni dans des fichiers de l'arborescence de base.
+
+\setcounter{subsection}{0}
+\subsection{mapio.c}
+\begin{description}
+\item[map\_new :] cette fonction alloue l'espace nécessaire pour créer une carte, puis construit une carte de base.
+\item[map\_save :] cette fonction devra sauvegarder une carte modifiée. Pour l'instant elle ne fait qu'afficher que cette fonction n'est pas implémentée;
+\item[map\_load :] cette fonction devra charger une carte modifiée depuis le fichier \textit{saved.map} dans le dossier \textbf{maps}. Pour l'instant elle ne fait qu'afficher que cette fonction n'est pas implémentée.
+\end{description}
+
+\subsection{tempo.c}
+\begin{description}
+\item[get\_time :] cette fonction retourne le temps écoulé depuis le début de 2016 en microseconde.
+\item[time\_init :] cette fonction est appelée au démarrage, mettra en place la gestion des signaux et initialisera les variables utiles pour le traitement. Pour l'instant, elle ne fait que retourner 0 pour montrer que le code n'est pas encore écrit.
+\item[time\_set :] cette fonction arme un temporisateur d'une durée ``delay'' en microseconde et déclenchera un événement prédéfini avec sdl\_push\_event grâce à la valeur ``param''.
+\end{description}
+
+\subsection{ligame.a}
+
+
+
+\chapter{Gestion de cartes}
+\setcounter{section}{0}
+La gestion de cartes nous demandait de gérer deux principaux points:
+\begin{description}
+\item[La sauvegarde et le chargement:] une carte modifiée peut etre enregistrée dans un fichier saved.map, enregistré dans le dossier \textbf{maps}. Ce meme fichier peut etre utilisé pour charger cette carte éditée à la place de la carte de base.
+\item[Maputil :] ce gestionnaire permet essentiellement la modification d'une carte enregistrée.
+\end{description}
+
+\section{Sauvegarde et chargement d'une carte}
+
+\section{Maputil}
+
+\chapter{Gestion des temporisateurs}
+\setcounter{section}{0}
+\section{Création d'un thread démon}
+
+\section{Implémentation simple d'une gestion de signaux}
+
+\section{Implémentation complète de la gestion de signaux et mise en service}
+
+\chapter{Couverture du travail demandé et son organisation}
+\setcounter{section}{0}
+\section{Arborescence}
+
+\section{Code parfaitement implémenté}
+
+\section{Code partiellement implémenté}
+
+\end{document}
