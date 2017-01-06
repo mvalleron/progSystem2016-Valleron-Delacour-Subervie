@@ -19,13 +19,11 @@ Ce projet a été réalisé dans le cadre de l'UE ``Programmation Système'' du 
 Nous avons disposé au départ de tous les fichiers nécessaires à la compilation d'un code permettant de créer un exécutable permettant de lancer le jeu. Celui-ci se présente comme une jeu de plateforme 2D, où il est possible d'ajouter ou d'enlever des objets à cette carte.
 
 \section{Sauvegarde, chargement, et l'utilitaire Maputil}
-La première partie du projet consistait à, d'une part, à permettre la sauvegarde de cartes, et leur chargement, et d'autre part, la modification de ces cartes grace à l'utilitaire Maputil.\\
+La première partie du projet consistait à permettre, d'une part, la sauvegarde de cartes, et leur chargement, et d'autre part, la modification de ces cartes grâce à l'utilitaire Maputil.\\
 Celui-ci devait permettre d'obtenir les différentes données utiles d'une carte (sa largeur, sa hauteur, son nombre d'objets), mais aussi de modifier les données de cette carte.
 
 \section{Gestion des temporisateurs}
-La deuxième partie du projet nous demander de avoir une gestion de signaux permettant la présence d'objets dynamiques tels que des bombes ou des mines.
-
-%à compléter (Maxime)
+La deuxième partie du projet nous demandait d'avoir une gestion de signaux permettant par exemple la présence d'objets dynamiques tels que des bombes ou des mines.
 
 \chapter{Le code fourni et son organisation}
 \setcounter{section}{0}
@@ -39,7 +37,7 @@ L'arborescence du projet se trouve dans un un dossier \textbf{Projet}. Elle s'or
 \item[maps :] dossier où se trouvera les fichiers contenant les cartes sauvegardées. Il est pour l'instant inutilisé.
 \item[obj :] dossier où sont créés les fichiers objet (.o) à partir des fichiers de code (.c) lors de la compilation.
 \item[sons :] dossier où sont stockés tous les sons utilisés dans le jeu.
-\item[src :] dossier où se trouve le fichier mapio.c (il manque cependant le code de quelques fonctions).
+\item[src :] dossier où se trouve le fichier \textit{mapio.c} et le fichier \textit{tempo.c} (il manquait cependant le code de quelques fonctions).
 \item[util :] dossier où se trouve le fichier objet.txt où sont décrits les différents objets du jeu.
 \end{description}
 
@@ -50,18 +48,18 @@ Du code était déjà fourni dans des fichiers de l'arborescence de base.
 \subsection{mapio.c}
 \begin{description}
 \item[map\_new :] cette fonction alloue l'espace nécessaire pour créer une carte, puis construit une carte de base.
-\item[map\_save :] cette fonction devra sauvegarder une carte modifiée. Pour l'instant elle ne fait qu'afficher que cette fonction n'est pas implémentée;
-\item[map\_load :] cette fonction devra charger une carte modifiée depuis le fichier \textit{saved.map} dans le dossier \textbf{maps}. Pour l'instant elle ne fait qu'afficher que cette fonction n'est pas implémentée.
+\item[map\_save :] cette fonction devra sauvegarder une carte modifiée. Pour l'instant elle ne fait qu'afficher que \textbf{map\_save} n'est pas implémentée.
+\item[map\_load :] cette fonction devra charger une carte modifiée depuis le fichier \textit{saved.map} dans le dossier \textbf{maps}. Pour l'instant elle ne fait qu'afficher que \textbf{map\_load} n'est pas implémentée.
 \end{description}
 
 \subsection{tempo.c}
 \begin{description}
 \item[get\_time :] cette fonction retourne le temps écoulé depuis le début de 2016 en microseconde.
-\item[time\_init :] cette fonction est appelée au démarrage, mettra en place la gestion des signaux et initialisera les variables utiles pour le traitement. Pour l'instant, elle ne fait que retourner 0 pour montrer que le code n'est pas encore écrit.
-\item[time\_set :] cette fonction arme un temporisateur d'une durée ``delay'' en microseconde et déclenchera un événement prédéfini avec sdl\_push\_event grâce à la valeur ``param''.
+\item[time\_init :] cette fonction est appelée au démarrage, elle mettra en place la gestion des signaux et initialisera les variables utiles pour leur traitement. Pour l'instant, elle ne fait que retourner 0 pour montrer que le code n'est pas encore écrit.
+\item[time\_set :] cette fonction arme un temporisateur d'une durée ``delay'' en microseconde et déclenchera un événement prédéfini avec \textbf{sdl\_push\_event} grâce à la valeur ``param''.
 \end{description}
 
-\subsection{ligame.a}
+\subsection{libgame.a}
 Cette bibliothèque implémente toutes les autres fonctions décrites dans les fichiers en-tête du dossier \textbf{include}.
 
 
@@ -69,7 +67,7 @@ Cette bibliothèque implémente toutes les autres fonctions décrites dans les f
 \setcounter{section}{0}
 La gestion de cartes nous demandait de gérer deux principaux points:
 \begin{description}
-\item[La sauvegarde et le chargement:] une carte modifiée peut etre enregistrée dans un fichier saved.map, enregistré dans le dossier \textbf{maps}. Ce meme fichier peut etre utilisé pour charger cette carte éditée à la place de la carte de base.
+\item[La sauvegarde et le chargement:] une carte modifiée peut être enregistrée dans un fichier \textit{saved.map}, enregistré dans le dossier \textbf{maps}. Ce meme fichier peut être utilisé pour charger cette carte éditée à la place de la carte de base.
 \item[Maputil :] ce gestionnaire permet essentiellement la modification d'une carte enregistrée.
 \end{description}
 
@@ -82,9 +80,9 @@ Les fonctions de sauvegarde et de chargement se trouvent dans le fichier \textit
 
 
 \section{Maputil}
-Maputil est un utilitaire de manipulation de carte. Son code source se trouve dans le répertoire \textbf{util}. Il permet de consulter des informations contenues dans un fichier \textit{saved.map} et de modifier ces informations. Il contient les fonctions suivantes:
+Maputil est un utilitaire de manipulation de carte. Son code source se trouve dans le fichier \textit{maputil.c} dans le répertoire \textbf{util}. Il permet de consulter des informations contenues dans un fichier \textit{saved.map} et de modifier ces informations. Il contient les fonctions suivantes:
 \begin{description}
-  \item[usage :] cette fonction permet de vérifier que l'utilisateur a entré une commande valide. Sinon, il arrête l'exécution.
+  \item[usage :] cette fonction permet de vérifier que l'utilisateur a entré une commande valide. Sinon, elle arrête l'exécution.
   \item[optionsAlloc :] cette fonction alloue un tableau contenant toutes les options possibles de maputil.
   \item[optionsFree :] cette fonction libère la mémoire allouée par la fonction précédente;
   \item[getWidth :] cette fonction renvoie la largeur de la carte passée en paramètre.
@@ -94,22 +92,30 @@ Maputil est un utilitaire de manipulation de carte. Son code source se trouve da
   \item[setHeight :] cette fonction change l'ancienne hauteur d'une carte par une nouvelle.
   \item[setObjects :] cette fonction change l'ancienne liste d'objets d'une carte par une nouvelle.
   \item[pruneObjects :] cette fonction supprime les objets inutilisés dans une carte de la liste d'objets de cette dernière.
-  \item[traitementOption :] cette fonction teste la correspondance entre l'option demandée et les options existantes, et appelle une fonction correspondante si elle existe. Elle renvoie le nombre d'arguments utilisés.
+  \item[traitementOption :] cette fonction teste la correspondance entre l'option demandée et les options existantes, et appelle la ou les fonction(s) correspondante(s) si elle existe. Elle renvoie le nombre d'arguments utilisés.
 \end{description}
 
 
 \chapter{Gestion des temporisateurs}
 \setcounter{section}{0}
-\section{Création d'un thread démon}
+La gestion des temporisateurs nous demandait de gérer à l'aide de signaux des événements, comme notamment l'explosion de bombes/mines dans le jeu.
 
+\section{Création d'un thread démon}
+Dans un premier temps, nous avons uniquement créé un thread qui gère la réception du signal SIGALRM dans la fontion \textbf{timer\_init}. Il effectue une boucle infinie en appelant la fonction \textbf{sigsuspend}.
 \section{Implémentation simple d'une gestion de signaux}
+Dans un deuxième temps, nous avons effectué la gestion d'un et unique temporisateur (une explosion). Nous avons simplement rajouté un appel à la fonction \textit{setitimer} dans la fonction \textbf{timer\_set} et demandé l'affichage de l'événement sur la sortie standard dans la fonction \textbf{timer\_init}.
 
 \section{Implémentation complète de la gestion de signaux et mise en service}
+Enfin, nous avons créé la gestion d'un échéancier d'événements dans la fonction \textbf{timer\_set} afin de gérer plusieurs événements avec cette fonction.
 
-\chapter{Couverture du travail demandé et son organisation}
-\setcounter{section}{0}
-\section{Code parfaitement implémenté}
+\chapter{Organisation de la charge de travail}
+Afin de répartir la charge de travail, chacun s'est occupé d'une ou plusieurs parties:
+\begin{description}
+\item[Gautier DELACOUR] s'est occupé des fonctions de gestion et modification de la carte dans Maputil.
+\item[Bérangère SUBERVIE] s'est occupé du traitement des options dans Maputil.
+\item[Maxime VALLERON] s'est occupé des fonctions de sauvegarde et chargement dans le fichier \textit{mapio.c} et de la gestion des temporisateurs.
+\end{description}
 
-\section{Code partiellement implémenté}
+Cependant, il est à noter que nous avons en réalité beaucoup travaillé ensemble sur toutes les parties du projet, et nous nous sommes corrigé nos erreurs les uns les autres.
 
 \end{document}
