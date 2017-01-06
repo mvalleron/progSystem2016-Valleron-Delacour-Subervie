@@ -675,6 +675,7 @@ void pruneOjects(int Fd){
       perror("write");
       exit(EXIT_FAILURE);
     }
+  int tmp = 0;
   for(int i=0;i<nbObjects;i++)
     {
       if(t[i])
@@ -694,7 +695,6 @@ void pruneOjects(int Fd){
 		  exit(EXIT_FAILURE);
 		}
 	    }
-	  printf("\n");
 	  e=write(Fd,&tframe[i],sizeof(int));
 	  if(e==-1)
 	    {
@@ -725,13 +725,22 @@ void pruneOjects(int Fd){
 	      perror("write");
 	      exit(EXIT_FAILURE);
 	    }
+	  t[i] = tmp;
+	  tmp++;
 	}
     }
   for(int y=0;y<h;y++)
     {
       for(int x=0;x<w;x++)
 	{
-	  e=write(Fd,&tab[y*w+x],sizeof(int));
+	  if(tab[y*w+x] == -1)
+	    {
+	      e=write(Fd,&tab[y*w+x],sizeof(int));
+	    }
+	  else
+	    {
+	      e=write(Fd,&t[tab[y*w+x]],sizeof(int));
+	    }
 	  if(e==-1)
 	    {
 	      perror("write");
@@ -739,6 +748,11 @@ void pruneOjects(int Fd){
 	    }
 	}
     }
+  for(int k = 0;k<nbObjects;k++)
+    {
+      free(tname[k]);
+    }
+  free(tname);
 }
 
 //Teste la correspondance entre l'option demandée et les options existantes, et appelle une fonction correspondante si elle existe
